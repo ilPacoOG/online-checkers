@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import Board from './components/Board'
 import './App.css'
 
 const App: FC = () => {
@@ -8,7 +9,7 @@ const App: FC = () => {
         <h1>Online Checkers</h1>
       </header>
       <main className="app-main">
-        {/* Game board will go here once we create it */}
+        <Board />
       </main>
     </div>
   )
