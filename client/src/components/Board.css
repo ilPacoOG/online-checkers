@@ -22,3 +22,20 @@
 .square.white {
   background-color: #eeeed2;
 }
+
+
+/* adding pieces to the css to begin testing the code */
+
+.piece {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.player-piece {
+  background-color: red;
+}
+
+.ai-piece {
+  background-color: black;
+}
