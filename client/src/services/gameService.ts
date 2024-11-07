@@ -1,6 +1,20 @@
 import { PieceType, Coordinates } from '../types/types';
 
 // We need to also add a function to validate whose turn it is to move. Will begin working on an isPlayerTurn function once I complete the AI integration.
+
+//code for isPlayerTurn function
+let playerTurn = true; 
+
+export function isPlayerTurn(): boolean {
+    return playerTurn;
+}
+
+export function toggleTurn(): void {
+    playerTurn = !playerTurn;
+}
+
+
+
 export function isValidMove(
     board: PieceType[][],
     start: Coordinates,
@@ -109,3 +123,5 @@ export function promoteToKing(board: PieceType[][], pos: Coordinates): PieceType
   return newBoard;
 }
 
+
+//need function to determine whose turn it is
