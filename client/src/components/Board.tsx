@@ -1,57 +1,64 @@
-// Import necessary dependencies
 import React, { useState } from 'react';
 import { PieceType, Coordinates } from '../types/types';
+import { isValidMove, executeMove, isCaptureMove, executeCapture, promoteToKing, isPlayerTurn, toggleTurn } from '../services/gameService';
 import Square from './Square';
 import './Board.css';
 
-// Initialize the board with starting positions
 const initializeBoard = (): PieceType[][] => [
-  [0, 2, 0, 2, 0, 2, 0, 2],
-  [2, 0, 2, 0, 2, 0, 2, 0],
-  [0, 2, 0, 2, 0, 2, 0, 2],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0],
-  [1, 0, 1, 0, 1, 0, 1, 0],
-  [0, 1, 0, 1, 0, 1, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 0]
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [2, 0, 2, 0, 2, 0, 2, 0],
+    [0, 2, 0, 2, 0, 2, 0, 2],
+    [2, 0, 2, 0, 2, 0, 2, 0]
 ];
 
 const Board: React.FC = () => {
-  // State for board and selected piece
-  const [board, setBoard] = useState<PieceType[][]>(initializeBoard());
-  const [selectedPiece, setSelectedPiece] = useState<Coordinates | null>(null);
+    const [board, setBoard] = useState<PieceType[][]>(initializeBoard());
+    const [selectedPiece, setSelectedPiece] = useState<Coordinates | null>(null);
 
-  // Handle square click
-  const handleSquareClick = (row: number, col: number) => {
-    if (selectedPiece) {
-      // Handle piece movement logic here
-      setSelectedPiece(null);
-    } else if (board[row][col] !== PieceType.Empty) {
-      setSelectedPiece({ row, col });
-    }
-  };
+    const handleSquareClick = (row: number, col: number) => {
+        const selectedSquare = { row, col };
 
-  // Render board
-  return (
-    <div className="board-container">
-      {board.map((row, rowIndex) => (
-        <div key={rowIndex} className="board-row">
-          {row.map((piece, colIndex) => (
-            <Square
-              key={`${rowIndex}-${colIndex}`}
-              piece={piece}
-              isSelected={
-                selectedPiece?.row === rowIndex && 
-                selectedPiece?.col === colIndex
-              }
-              isBlack={(rowIndex + colIndex) % 2 === 1}
-              onClick={() => handleSquareClick(rowIndex, colIndex)}
-            />
-          ))}
+        if (selectedPiece) {
+            if (isCaptureMove(board, selectedPiece, selectedSquare)) {
+                const newBoard = executeCapture(board, selectedPiece, selectedSquare);
+                setBoard(promoteToKing(newBoard, selectedSquare));
+                toggleTurn(); // Toggle turn after capture
+            } else if (isValidMove(board, selectedPiece, selectedSquare)) {
+                const newBoard = executeMove(board, selectedPiece, selectedSquare);
+                setBoard(promoteToKing(newBoard, selectedSquare));
+                toggleTurn(); // Toggle turn after valid move
+            } else {
+                console.log("Invalid move");
+            }
+            setSelectedPiece(null); // Clear the selection after move
+        } else {
+            const piece = board[row][col];
+            if ((isPlayerTurn() && (piece === PieceType.PlayerPiece || piece === PieceType.PlayerKing)) ||
+                (!isPlayerTurn() && (piece === PieceType.AIPiece || piece === PieceType.AIKing))) {
+                setSelectedPiece(selectedSquare);
+            }
+        }
+    };
+
+    return (
+        <div className="board-container">
+            {board.map((row, rowIndex) => (
+                row.map((piece, colIndex) => (
+                    <Square
+                        key={`${rowIndex}-${colIndex}`}
+                        piece={piece}
+                        isSelected={selectedPiece?.row === rowIndex && selectedPiece?.col === colIndex}
+                        isBlack={(rowIndex + colIndex) % 2 !== 0}
+                        onClick={() => handleSquareClick(rowIndex, colIndex)}
+                    />
+                ))
+            ))}
         </div>
-      ))}
-    </div>
-  );
+    );
 };
 
 export default Board;

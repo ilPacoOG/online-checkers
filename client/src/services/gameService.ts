@@ -1,5 +1,8 @@
 import { PieceType, Coordinates } from '../types/types';
 
+// * had to add the playerTurn function and the toggleTurn functions back in to be included in Matt's updated code for gameService.ts. Those functions were added to the end of this code.
+let playerTurn = true;
+
 /**
  * Validates if a move is legal according to checkers rules
  * @param board Current game board
@@ -146,6 +149,19 @@ export function promoteToKing(
     return newBoard;
 }
 
-// TODO: Add isPlayerTurn function for turn validation
-// TODO: Add AI move generation logic
+/**
+ * had to add the is player turn function and the toggle turn functions back in to be included in Matt's updated code for gameService.ts
+ * @returns boolean indicating if it is the player's turn
+ */
+export function isPlayerTurn(): boolean {
+    return playerTurn;
+}
 
+/**
+ * Toggles the turn between player and AI
+ */
+export function toggleTurn(): void {
+    playerTurn = !playerTurn;
+}
+
+// TODO: Add AI move generation logic
