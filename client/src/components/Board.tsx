@@ -1,24 +1,55 @@
-import { PieceType, Coordinates } from '../types/types';
-export async function getAIMove(board: PieceType[][]): Promise<Coordinates | null> {
-    const boardState = JSON.stringify(board); // Convert the board to a JSON string
-    const prompt = `
-        You are playing a game of checkers as the AI. Here is the current board state:
-        ${boardState}
-        Provide the coordinates for your move in the format {"from": {"row": 5, "col": 2}, "to": {"row": 4, "col": 3}}.
-        Follow checkers rules strictly and ensure the move is valid.
-    `;
-    try {
-        const response = await openai.createCompletion({
-            model: "text-davinci-003",
-            prompt: prompt,
-            max_tokens: 50,
-            temperature: 0.7,
-        });
-        // Parse and return the response as Coordinates
-        const move = JSON.parse(response.data.choices[0].text.trim());
-        return move;
-    } catch (error) {
-        console.error("Error getting AI move:", error);
-        return null;
+import { FC, useState } from 'react';
+import Square from './Square';
+import './Board.css';
+
+// Define types for pieces
+type PieceType = 'red' | 'black' | null;
+
+const Board: FC = () => {
+  // Initialize board state with starting piece positions
+  const [board, setBoard] = useState<PieceType[][]>(
+    Array(8).fill(null).map((_, row) => {
+      return Array(8).fill(null).map((_, col) => {
+        if ((row + col) % 2 === 1) {  // Only place pieces on black squares
+          if (row < 3) return 'black';  // Black pieces at top
+          if (row > 4) return 'red';    // Red pieces at bottom
+        }
+        return null;  // No piece on this square
+      });
+    })
+  );
+
+  // Render a single square with its piece
+  const renderSquare = (row: number, col: number) => {
+    const isBlack = (row + col) % 2 === 1;  // Determine square color
+    const piece = board[row][col];  // Get piece at this position
+    
+    return (
+      <Square 
+        key={`${row}-${col}`}
+        isBlack={isBlack}
+        piece={piece}
+      />
+    );
+  };
+
+  // Render the entire board
+  const renderBoard = () => {
+    const squares = [];
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        squares.push(renderSquare(row, col));
+      }
     }
-}
+    return squares;
+  };
+
+  // Return the board container with all squares
+  return (
+    <div className="board-container">
+      {renderBoard()}
+    </div>
+  );
+};
+
+export default Board;
