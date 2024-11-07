@@ -1,14 +1,29 @@
-import { FC } from 'react';
+//adjusted from Matt's code to work with the game logic
+
+import React from 'react';
+import { PieceType } from '../types/types';
 
 interface SquareProps {
-  isBlack: boolean;
-  piece?: 'red' | 'black' | null;
+    pieceType: PieceType;
+    row: number;
+    col: number;
+    className: string;
+    onClick: () => void;
 }
 
-export const Square: FC<SquareProps> = ({ isBlack, piece }) => {
-  return (
-    <div className={`square ${isBlack ? 'black' : 'white'}`}>
-      {piece && <div className={`piece ${piece}`} />}
-    </div>
-  );
+const Square: React.FC<SquareProps> = ({ pieceType, className, onClick }) => {
+    const pieceClass = pieceType === PieceType.PlayerPiece
+        ? 'player-piece'
+        : pieceType === PieceType.AIPiece
+        ? 'ai-piece'
+        : '';
+
+    return (
+        <div className={className} onClick={onClick}>
+            {pieceType !== PieceType.Empty && <div className={`piece ${pieceClass}`}></div>}
+        </div>
+    );
 };
+
+export default Square;
+
