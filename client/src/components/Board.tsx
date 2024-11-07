@@ -1,43 +1,24 @@
-import { FC } from 'react';
-import './Board.css';
-
-const Board: FC = () => {
-  const renderSquare = (row: number, col: number) => {
-    const isBlack = (row + col) % 2 === 1;
-    return (
-      <div 
-        key={`${row}-${col}`} 
-        className={`square ${isBlack ? 'black' : 'white'}`}
-      />
-    );
-  };
-
-  const renderBoard = () => {
-    const squares = [];
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        squares.push(renderSquare(row, col));
-      }
+import { PieceType, Coordinates } from '../types/types';
+export async function getAIMove(board: PieceType[][]): Promise<Coordinates | null> {
+    const boardState = JSON.stringify(board); // Convert the board to a JSON string
+    const prompt = `
+        You are playing a game of checkers as the AI. Here is the current board state:
+        ${boardState}
+        Provide the coordinates for your move in the format {"from": {"row": 5, "col": 2}, "to": {"row": 4, "col": 3}}.
+        Follow checkers rules strictly and ensure the move is valid.
+    `;
+    try {
+        const response = await openai.createCompletion({
+            model: "text-davinci-003",
+            prompt: prompt,
+            max_tokens: 50,
+            temperature: 0.7,
+        });
+        // Parse and return the response as Coordinates
+        const move = JSON.parse(response.data.choices[0].text.trim());
+        return move;
+    } catch (error) {
+        console.error("Error getting AI move:", error);
+        return null;
     }
-    return squares;
-  };
-
-    return (
-        <div className="board-container">
-            {board.map((row, rowIndex) => (
-                row.map((piece, colIndex) => (
-                    <Square
-                        key={`${rowIndex}-${colIndex}`}
-                        pieceType={piece}
-                        row={rowIndex}
-                        col={colIndex}
-                        className={`square ${((rowIndex + colIndex) % 2 === 0) ? 'white' : 'black'}`}
-                        onClick={() => handleSquareClick(rowIndex, colIndex)} 
-                    />
-                ))
-            ))}
-        </div>
-    );
-};
-
-export default Board;
+}
