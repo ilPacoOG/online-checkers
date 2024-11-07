@@ -1,20 +1,12 @@
 import { PieceType, Coordinates } from '../types/types';
 
-// We need to also add a function to validate whose turn it is to move. Will begin working on an isPlayerTurn function once I complete the AI integration.
-
-//code for isPlayerTurn function
-let playerTurn = true; 
-
-export function isPlayerTurn(): boolean {
-    return playerTurn;
-}
-
-export function toggleTurn(): void {
-    playerTurn = !playerTurn;
-}
-
-
-
+/**
+ * Validates if a move is legal according to checkers rules
+ * @param board Current game board
+ * @param start Starting coordinates
+ * @param end Ending coordinates
+ * @returns boolean indicating if move is valid
+ */
 export function isValidMove(
     board: PieceType[][],
     start: Coordinates,
@@ -23,7 +15,7 @@ export function isValidMove(
     const piece = board[start.row][start.col];
     const targetPiece = board[end.row][end.col];
 
-    //check if destination is within bounds and empty
+    // Validate board boundaries and target square emptiness
     if (
         end.row < 0 || end.row >= board.length ||
         end.col < 0 || end.col >= board[0].length ||
@@ -32,21 +24,21 @@ export function isValidMove(
         return false;
     }
 
-    // Determine movement direction based on piece type
+    // Calculate movement differences
     const rowDiff = end.row - start.row;
     const colDiff = Math.abs(end.col - start.col);
 
+    // Regular player piece can only move forward (down)
     if (piece === PieceType.PlayerPiece && rowDiff === 1 && colDiff === 1) {
-        // player piece moving forward
         return true;
     }
 
+    // Regular AI piece can only move forward (up)
     if (piece === PieceType.AIPiece && rowDiff === -1 && colDiff === 1) {
-        //AI piece moving forward
         return true;
     }
 
-    //check for king movement (can move diagonally in either direction)
+    // King pieces can move in any diagonal direction
     if ((piece === PieceType.PlayerKing || piece === PieceType.AIKing) &&
         Math.abs(rowDiff) === 1 && colDiff === 1) {
         return true;
@@ -55,73 +47,105 @@ export function isValidMove(
     return false;
 }
 
-// We need to add a function to execute a move on the board. 
+/**
+ * Executes a regular move on the board
+ * @param board Current game board
+ * @param start Starting coordinates
+ * @param end Ending coordinates
+ * @returns New board state after move
+ */
 export function executeMove(
-  board: PieceType[][],
-  start: Coordinates,
-  end: Coordinates
+    board: PieceType[][],
+    start: Coordinates,
+    end: Coordinates
 ): PieceType[][] {
-  const newBoard = board.map(row => [...row]); // Create a copy of the board
-  newBoard[end.row][end.col] = newBoard[start.row][start.col];
-  newBoard[start.row][start.col] = PieceType.Empty;
-  return newBoard;
+    const newBoard = board.map(row => [...row]); // Create deep copy of board
+    newBoard[end.row][end.col] = newBoard[start.row][start.col];
+    newBoard[start.row][start.col] = PieceType.Empty;
+    return newBoard;
 }
-// the isCaptureMove function checks if a move is a capture move.
+
+/**
+ * Checks if a move is a capture move
+ * @param board Current game board
+ * @param start Starting coordinates
+ * @param end Ending coordinates
+ * @returns boolean indicating if move is a capture
+ */
 export function isCaptureMove(
-  board: PieceType[][],
-  start: Coordinates,
-  end: Coordinates
+    board: PieceType[][],
+    start: Coordinates,
+    end: Coordinates
 ): boolean {
-  const piece = board[start.row][start.col];
-  const opponentPiece = piece === PieceType.PlayerPiece || piece === PieceType.PlayerKing
-      ? PieceType.AIPiece
-      : PieceType.PlayerPiece;
+    const piece = board[start.row][start.col];
+    const opponentPiece = piece === PieceType.PlayerPiece || piece === PieceType.PlayerKing
+        ? PieceType.AIPiece
+        : PieceType.PlayerPiece;
 
-  const midRow = (start.row + end.row) / 2;
-  const midCol = (start.col + end.col) / 2;
+    // Calculate middle square (captured piece location)
+    const midRow = (start.row + end.row) / 2;
+    const midCol = (start.col + end.col) / 2;
 
-  //need capture conditions: move is a jump (2 rows, 2 cols) over an opponent's piece
-  return (
-      Math.abs(end.row - start.row) === 2 &&
-      Math.abs(end.col - start.col) === 2 &&
-      board[midRow][midCol] === opponentPiece &&
-      board[end.row][end.col] === PieceType.Empty
-  );
+    // Validate capture conditions
+    return (
+        Math.abs(end.row - start.row) === 2 &&
+        Math.abs(end.col - start.col) === 2 &&
+        board[midRow][midCol] === opponentPiece &&
+        board[end.row][end.col] === PieceType.Empty
+    );
 }
 
-// the executeCapture function executes a capture move on the board.
+/**
+ * Executes a capture move on the board
+ * @param board Current game board
+ * @param start Starting coordinates
+ * @param end Ending coordinates
+ * @returns New board state after capture
+ */
 export function executeCapture(
-  board: PieceType[][],
-  start: Coordinates,
-  end: Coordinates
+    board: PieceType[][],
+    start: Coordinates,
+    end: Coordinates
 ): PieceType[][] {
-  const newBoard = board.map(row => [...row]); //make a copy of the board
+    const newBoard = board.map(row => [...row]);
 
-  const midRow = (start.row + end.row) / 2;
-  const midCol = (start.col + end.col) / 2;
+    // Calculate captured piece location
+    const midRow = (start.row + end.row) / 2;
+    const midCol = (start.col + end.col) / 2;
 
-  // move piece
-  newBoard[end.row][end.col] = newBoard[start.row][start.col];
-  newBoard[start.row][start.col] = PieceType.Empty;
+    // Move the capturing piece
+    newBoard[end.row][end.col] = newBoard[start.row][start.col];
+    newBoard[start.row][start.col] = PieceType.Empty;
 
-  //remove captured piece
-  newBoard[midRow][midCol] = PieceType.Empty;
+    // Remove the captured piece
+    newBoard[midRow][midCol] = PieceType.Empty;
 
-  return newBoard;
-}
-//the promoteToKing function promotes a piece to a king if it reaches the other side of the board.
-export function promoteToKing(board: PieceType[][], pos: Coordinates): PieceType[][] {
-  const newBoard = board.map(row => [...row]); //make a copy of board
-  const piece = newBoard[pos.row][pos.col];
-
-  if (piece === PieceType.PlayerPiece && pos.row === 7) {
-      newBoard[pos.row][pos.col] = PieceType.PlayerKing;
-  } else if (piece === PieceType.AIPiece && pos.row === 0) {
-      newBoard[pos.row][pos.col] = PieceType.AIKing;
-  }
-
-  return newBoard;
+    return newBoard;
 }
 
+/**
+ * Promotes a piece to king if it reaches the opposite end
+ * @param board Current game board
+ * @param pos Position to check for promotion
+ * @returns New board state after potential promotion
+ */
+export function promoteToKing(
+    board: PieceType[][],
+    pos: Coordinates
+): PieceType[][] {
+    const newBoard = board.map(row => [...row]);
+    const piece = newBoard[pos.row][pos.col];
 
-//need function to determine whose turn it is
+    // Check if piece reached opposite end
+    if (piece === PieceType.PlayerPiece && pos.row === 7) {
+        newBoard[pos.row][pos.col] = PieceType.PlayerKing;
+    } else if (piece === PieceType.AIPiece && pos.row === 0) {
+        newBoard[pos.row][pos.col] = PieceType.AIKing;
+    }
+
+    return newBoard;
+}
+
+// TODO: Add isPlayerTurn function for turn validation
+// TODO: Add AI move generation logic
+
