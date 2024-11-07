@@ -1,4 +1,4 @@
-import apiRoutes from './api/index.js';
+import apiRoutes from './api/AI/index.js';
 import express from 'express';
 const router = express.Router();
 
