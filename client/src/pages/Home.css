@@ -8,15 +8,15 @@
   padding: 2rem;
 }
 
-/* Menu container */
+/* Menu buttons container */
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1rem; /* Space between buttons */
   margin-top: 2rem;
 }
 
-/* Button base styles */
+/* Base button styles */
 button {
   padding: 1rem 2rem;
   font-size: 1.2rem;
@@ -24,30 +24,32 @@ button {
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
+  min-width: 200px; /* Consistent button width */
 }
 
+/* Button hover animation */
 button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px); /* Slight lift effect */
 }
 
-/* Play button specific styles */
+/* Play button specific styling */
 .play-button {
   background-color: #27ae60;
   color: white;
-  min-width: 200px;
 }
 
+/* Play button hover effect */
 .play-button:hover {
   background-color: #2ecc71;
 }
 
-/* Rules button specific styles */
+/* Rules button specific styling */
 .rules-button {
   background-color: #3498db;
   color: white;
-  min-width: 200px;
 }
 
+/* Rules button hover effect */
 .rules-button:hover {
   background-color: #2980b9;
 }

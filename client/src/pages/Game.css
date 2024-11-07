@@ -1,15 +1,15 @@
-/* Main container for the game page */
+/* Game page layout container */
 .game-container {
   display: flex;
-  gap: 2rem;
+  gap: 2rem; /* Space between board and info panel */
   align-items: flex-start;
   justify-content: center;
-  padding: 1rem;
+  padding: 2rem;
 }
 
-/* Container for the game board */
+/* Board wrapper to prevent shrinking */
 .game-board {
-  flex-shrink: 0; /* Prevents board from shrinking */
+  flex-shrink: 0;
 }
 
 /* Game information panel styling */
@@ -21,13 +21,7 @@
   min-width: 200px;
 }
 
-/* Game info header */
-h2 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-}
-
-/* Status message styling */
+/* Game status message styling */
 .status {
   font-size: 1.2rem;
   color: #34495e;
@@ -46,7 +40,7 @@ h2 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s; /* Smooth color transition on hover */
 }
 
 /* Back button hover effect */

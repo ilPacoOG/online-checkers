@@ -1,0 +1,67 @@
+/* Base square styling */
+.square {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Dark square color */
+.square.black {
+  background-color: #769656; /* Dark green color */
+}
+
+/* Light square color */
+.square.white {
+  background-color: #eeeed2; /* Light cream color */
+}
+
+/* Highlight color for selected square */
+.square.selected {
+  background-color: #baca44; /* Light green highlight */
+}
+
+/* Highlight color for possible moves */
+.square.highlighted {
+  background-color: #f6f669; /* Yellow highlight for valid moves */
+}
+
+/* Base checker piece styling */
+.piece {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* Makes the piece circular */
+  cursor: pointer;
+  transition: transform 0.2s; /* Smooth hover animation */
+}
+
+/* Player piece styling (red pieces) */
+.piece.player {
+  background-color: #d63031; /* Red base color */
+  border: 3px solid #ff7675; /* Lighter red border */
+}
+
+/* AI piece styling (black pieces) */
+.piece.ai {
+  background-color: #2d3436; /* Dark gray/black base color */
+  border: 3px solid #636e72; /* Lighter gray border */
+}
+
+/* King piece crown symbol */
+.piece.king::after {
+  content: '♔'; /* Unicode crown symbol */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the crown */
+  color: #fff; /* White crown color */
+  font-size: 24px;
+}
+
+/* Hover effect for pieces */
+.piece:hover {
+  transform: scale(1.1); /* Slightly enlarge piece on hover */
+} 

@@ -9,12 +9,6 @@ const Home: FC = () => {
   // This will be used to programmatically navigate between routes
   const navigate = useNavigate();
 
-  // Handler function for when the Play Game button is clicked
-  // Uses navigate to redirect to the /game route
-  const handlePlayGame = () => {
-    navigate('/game');
-  };
-
   // Render the component
   return (
     // Main container for the home page
@@ -26,7 +20,7 @@ const Home: FC = () => {
       <div className="menu">
         {/* Play Game button */}
         {/* Uses the handlePlayGame function when clicked */}
-        <button className="play-button" onClick={handlePlayGame}>
+        <button className="play-button" onClick={() => navigate('/login')}>
           Play Game
         </button>
 

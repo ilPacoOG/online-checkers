@@ -15,7 +15,7 @@
   background-color: #f5f5f5;
 }
 
-/* Header styles */
+/* Header section styles */
 .app-header {
   background-color: #282c34;
   padding: 1rem;
@@ -25,7 +25,15 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Main content area */
+/* Header title specific styling */
+.app-header h1 {
+  color: white;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+/* Main content area styles */
 .app-main {
   flex: 1;
   display: flex;
