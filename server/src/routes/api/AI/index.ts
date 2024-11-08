@@ -1,7 +1,9 @@
-import  aiRoutes from './aiRoutes.js';
 import express from 'express';
+import aiRoutes from './move.js';
+
 const router = express.Router();
 
-router.use('/aimove', aiRoutes );
+// Register the AI routes under /api/ai
+router.use('/api/ai', aiRoutes);
 
 export default router;
