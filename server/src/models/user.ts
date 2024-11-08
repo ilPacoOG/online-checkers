@@ -46,9 +46,9 @@ export function UserFactory(sequelize: Sequelize): typeof User {
           type: DataTypes.STRING,
         //   prevents null values
           allowNull: false,
-        //   must be between 8 and 25 characters long
+          // must be between 8 and 25 characters long
           validate: {
-            len: [8,25]
+            len: [8,250]
           }
         },
       },

@@ -14,14 +14,16 @@ export const login = async (req: Request, res: Response) => {
 
   // If user is not found, send an authentication failed response
   if (!user) {
-    return res.status(401).json({ message: 'Authentication failed' });
+    return res.status(401).json({ message: 'Authentication failed this is different' });
   }
 
   // Compare the provided password with the stored hashed password
+  console.log(password);
+  console.log(user.password);
   const passwordIsValid = await bcrypt.compare(password, user.password);
   // If password is invalid, send an authentication failed response
   if (!passwordIsValid) {
-    return res.status(401).json({ message: 'Authentication failed' });
+    return res.status(401).json({ message: 'Authentication failed beep' });
   }
 
   // Get the secret key from environment variables
