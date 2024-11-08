@@ -1,6 +1,5 @@
 import { PieceType, Coordinates } from '../types/types';
 
-// * had to add the playerTurn function and the toggleTurn functions back in to be included in Matt's updated code for gameService.ts. Those functions were added to the end of this code.
 let playerTurn = true;
 
 /**
@@ -127,6 +126,34 @@ export function executeCapture(
 }
 
 /**
+ * Checks if additional captures are available from the given position
+ * @param board Current game board
+ * @param position Coordinates to check for further captures
+ * @returns boolean indicating if more captures are available
+ */
+
+export function canContinueCapture(
+    board: PieceType[][],
+    position: Coordinates
+): boolean {
+    // const piece = board[position.row][position.col];
+    const directions = [
+        { row: 2, col: 2 },
+        { row: 2, col: -2 },
+        { row: -2, col: 2 },
+        { row: -2, col: -2 }
+    ];
+
+    return directions.some(direction => {
+        const end = {
+            row: position.row + direction.row,
+            col: position.col + direction.col
+        };
+        return isCaptureMove(board, position, end);
+    });
+}
+
+/**
  * Promotes a piece to king if it reaches the opposite end
  * @param board Current game board
  * @param pos Position to check for promotion
@@ -150,7 +177,7 @@ export function promoteToKing(
 }
 
 /**
- * had to add the is player turn function and the toggle turn functions back in to be included in Matt's updated code for gameService.ts
+ * Checks if it's the player's turn
  * @returns boolean indicating if it is the player's turn
  */
 export function isPlayerTurn(): boolean {
