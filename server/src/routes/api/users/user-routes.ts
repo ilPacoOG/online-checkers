@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { User } from '../../../models/users/index';
+import { User } from '../../../models/index.js';
+import bcrypt from 'bcrypt';
 
 // GET /Users
 export const getAllUsers = async ( _req: Request, res: Response) => {
@@ -8,6 +9,7 @@ export const getAllUsers = async ( _req: Request, res: Response) => {
         const users= await User.findAll({
             attributes: {exclude: ['password']}
         });   
+        res.json(users);
         // error message
     } catch (error: any) {
         res.status(500).json({message: error.message})
@@ -28,7 +30,7 @@ export const getUserById = async (req: Request, res: Response) => {
             res.json(user)
         } else {
             // returns message if no user is found
-            res.status(404).json({mesage: 'No User Found'})
+            res.status(404).json({message: 'No User Found'})
         }
         // error message
     } catch (error: any) {
@@ -38,20 +40,21 @@ export const getUserById = async (req: Request, res: Response) => {
 
 // POST /Users
 export const createUser = async (req: Request, res: Response) => {
-//    extracting email and password from the body
-    const { email, password } = req.body
     try {
-        // making a new user that creates a new email and password
-        const newUser = await User.create({ email, password})
-        res.status(201).json(newUser)
+        const newUser = req.body
+        // hashing the password and saving it to newUser
+       newUser.password = await bcrypt.hash(req.body.password, 10);
+    //    creating a newUser with the hashed password and saving to DB
+       const userData = await User.create(newUser);
+        res.status(201).json(userData)
         // error message
     } catch (error: any) {
         res.status(400).json({ message: error.message });
       }
-}
+};
 
 // PUT /Users/:id
-export const UpdateUser = async  (req: Request, res: Response) => {
+export const updateUser = async  (req: Request, res: Response) => {
     const { id } = req.params;
     const { email, password} = req.body;
     try {
@@ -82,7 +85,7 @@ export const deleteUser = async (req: Request, res: Response)  => {
         // if user is true delete the user
         if (user) {
             await user.destroy();
-            res.json({message: 'User Has Been Deleted'})
+            res.json(204).send();
             // else give uer not found message
         } else {
             res.status(404).json ({ message: 'User Not Found'})
@@ -105,7 +108,7 @@ router.get('/:id', getUserById);
 router.post('/', createUser);
 
 // Update a user by its id
-router.put('/:id', UpdateUser);
+router.put('/:id', updateUser);
 
 // Delete a user by its id
 router.delete('/:id', deleteUser);
