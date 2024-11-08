@@ -1,7 +1,10 @@
 const forceDatabaseRefresh = false;  // Flag to control whether to force a database refresh on server start
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
-import sequelize from './config/connection'; // Import the initialized Sequelize instance
+import sequelize from './config/connection.js'; // Import the initialized Sequelize instance
 import routes from './routes/index.js';  // Import the routes for handling different endpoints
 
 const app = express();  // Create an Express application
