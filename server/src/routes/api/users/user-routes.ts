@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import { User } from '../../../models/index.js';
-import bcrypt from 'bcrypt';
 
 // GET /Users
 export const getAllUsers = async ( _req: Request, res: Response) => {
@@ -42,8 +41,6 @@ export const getUserById = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
     try {
         const newUser = req.body
-        // hashing the password and saving it to newUser
-       newUser.password = await bcrypt.hash(req.body.password, 10);
     //    creating a newUser with the hashed password and saving to DB
        const userData = await User.create(newUser);
         res.status(201).json(userData)
