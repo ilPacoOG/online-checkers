@@ -1,35 +1,39 @@
 // Import necessary dependencies
 import { FC } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// Import components
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
+import Login from './pages/Login';
 import Game from './pages/Game';
 import Rules from './pages/Rules';
-import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
-// Main App component
+/**
+ * Main Application Component
+ * Sets up routing and authentication context
+ */
 const App: FC = () => {
   return (
-    // Router wrapper for navigation
-    <Router>
-      <div className="app">
-        {/* Header section */}
-        <header className="app-header">
-          <h1>Online Checkers</h1>
-        </header>
-        {/* Main content area */}
-        <main className="app-main">
-          {/* Route definitions */}
+    <AuthProvider>
+      <Router>
+        <div className="app-container">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/game" element={<Game />} />
+            <Route 
+              path="/game" 
+              element={
+                <ProtectedRoute>
+                  <Game />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/rules" element={<Rules />} />
           </Routes>
-        </main>
-      </div>
-    </Router>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 };
 

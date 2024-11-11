@@ -1,6 +1,6 @@
 import express from 'express';
-import aiRoutes from './aiRoutes';
-import moveRoutes from './move';
+import aiRoutes from './aiRoutes.js';
+import moveRoutes from './move.js';
 
 const router = express.Router();
 

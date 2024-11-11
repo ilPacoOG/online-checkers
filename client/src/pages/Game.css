@@ -1,15 +1,77 @@
 /* Game page layout container */
 .game-container {
-  display: flex;
-  gap: 2rem; /* Space between board and info panel */
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* Board wrapper to prevent shrinking */
-.game-board {
-  flex-shrink: 0;
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #666;
+}
+
+.game-board-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logout-button {
+  padding: 8px 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .game-container {
+    padding: 10px;
+  }
+
+  .game-board-container {
+    padding: 10px;
+  }
+
+  .board-container {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
 }
 
 /* Game information panel styling */
@@ -45,5 +107,27 @@
 
 /* Back button hover effect */
 .back-button:hover {
+  background-color: #2980b9;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.rules-button {
+  padding: 8px 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.rules-button:hover {
   background-color: #2980b9;
 } 

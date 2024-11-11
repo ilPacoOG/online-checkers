@@ -2,15 +2,27 @@
 .board-container {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  width: 560px;
-  height: 560px;
-  border: 4px solid #333;
-  background: #eeeed2;
-  margin: auto;
-  gap: 1px;
-  padding: 1px;
-  background-color: #333;
+  width: 600px;
+  height: 600px;
+  border: 8px solid #4a3500;
+  margin: 20px auto;
+  position: relative;
+}
+
+/* Grid overlay for the entire board */
+.board-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), #4a3500 calc(100% - 1px)),
+    linear-gradient(0deg, transparent 0%, transparent calc(100% - 1px), #4a3500 calc(100% - 1px));
+  background-size: calc(100% / 8) calc(100% / 8);
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Board row container */
@@ -25,10 +37,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
   position: relative;
-  box-sizing: border-box;
-  border: 1px solid #333;
 }
 
 /* Dark squares */
@@ -43,28 +52,30 @@
 
 /* Selected square highlight */
 .square.selected {
-  background-color: #baca44;
+  background-color: #bbcb2b;
 }
 
 /* Piece styling */
 .piece {
-  width: 50px;
-  height: 50px;
+  width: 70%;
+  height: 70%;
   border-radius: 50%;
-  cursor: pointer;
+  position: relative;
   transition: transform 0.2s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 2;
 }
 
 /* Player piece styling */
 .piece.player {
-  background-color: #d63031;
-  border: 3px solid #ff7675;
+  background: radial-gradient(circle at 30% 30%, #ff6b6b, #cc0000);
+  border: 2px solid #990000;
 }
 
 /* AI piece styling */
 .piece.ai {
-  background-color: #2d3436;
-  border: 3px solid #636e72;
+  background: radial-gradient(circle at 30% 30%, #4a4a4a, #000000);
+  border: 2px solid #000000;
 }
 
 /* King piece crown */
@@ -74,11 +85,50 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  font-size: 28px;
   color: #fff;
-  font-size: 24px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Hover effect for pieces */
 .piece:hover {
   transform: scale(1.1);
+  cursor: pointer;
+}
+
+/* Player pieces */
+.player-piece {
+  background-color: #e71837;
+  border: 3px solid #8b0000;
+}
+
+/* AI pieces */
+.ai-piece {
+  background-color: #1a1a1a;
+  border: 3px solid #000000;
+}
+
+/* King pieces */
+.player-king {
+  background-color: #e71837;
+  border: 4px solid #8b0000;
+}
+
+.ai-king {
+  background-color: #1a1a1a;
+  border: 4px solid #000000;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .board-container {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+}
+
+/* Optional: Add a subtle outer glow to selected pieces */
+.square.selected .piece {
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.5);
 }

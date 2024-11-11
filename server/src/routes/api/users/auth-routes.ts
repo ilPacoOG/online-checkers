@@ -1,43 +1,64 @@
-import { Router, Request, Response } from 'express';
-import { User } from '../../../models/index.js';  // Import the User model
-import jwt from 'jsonwebtoken';  // Import the JSON Web Token library
-import bcrypt from 'bcrypt';  // Import the bcrypt library for password hashing
+import { Router } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-// Login function to authenticate a user
-export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;  // Extract username and password from request body
-
-  // Find the user in the database by username
-  const user = await User.findOne({
-    where: { email },
-  });
-
-  // If user is not found, send an authentication failed response
-  if (!user) {
-    return res.status(401).json({ message: 'Authentication failed this is different' });
-  }
-
-  // Compare the provided password with the stored hashed password
-  console.log(password);
-  console.log(user.password);
-  const passwordIsValid = await bcrypt.compare(password, user.password);
-  // If password is invalid, send an authentication failed response
-  if (!passwordIsValid) {
-    return res.status(401).json({ message: 'Authentication failed beep' });
-  }
-
-  // Get the secret key from environment variables
-  const secretKey = process.env.JWT_SECRET_KEY || '';
-
-  // Generate a JWT token for the authenticated user
-  const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
-  return res.json({ token });  // Send the token as a JSON response
-};
-
-// Create a new router instance
 const router = Router();
 
-// POST /login - Login a user
-router.post('/login', login);  // Define the login route
+// Temporary user storage (replace with database later)
+const users = [
+  {
+    id: '1',
+    email: 'test@example.com',
+    // Password: "password123"
+    password: '$2b$10$YaB6xpBcJe8Nc7nxN7KdPeGNZgb0mlmMwPg.ZyG89.DqWsbZREQie'
+  }
+];
 
-export default router;  // Export the router instance
+// Login route
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Log the login attempt
+    console.log('Login attempt for:', email);
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    // Find user
+    const user = users.find(u => u.email === email);
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Verify password
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    // Send response
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+export default router;

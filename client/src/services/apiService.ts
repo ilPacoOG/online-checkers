@@ -1,178 +1,161 @@
-/**
- * API Service for backend communication
- * Handles all HTTP requests to the server
- */
+const API_URL = 'http://localhost:3002';
 
-import axios from 'axios';
+// Game related types
+interface GameState {
+  board: number[][];
+  currentPlayer: string;
+  // Add other game state properties as needed
+}
 
-// Base URL for API endpoints
-const API_BASE_URL = 'http://localhost:3001/api';
+interface GameMove {
+  from: { row: number; col: number };
+  to: { row: number; col: number };
+}
 
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Types
+interface User {
+  id: number;
+  email: string;
+}
 
-/**
- * Authentication API calls
- */
+interface LoginResponse {
+  token: string;
+  user: User;
+}
+
+// Test connection function
+export const testConnection = async () => {
+  try {
+    const response = await fetch(`${API_URL}/test`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Connection test failed:', error);
+    throw error;
+  }
+};
+
+// Auth API
 export const authAPI = {
-  /**
-   * Login user
-   * @param email User's email
-   * @param password User's password
-   * @returns User data and token
-   */
-  login: async (email: string, password: string) => {
+  // Handle user login
+  login: async (credentials: { email: string; password: string }): Promise<LoginResponse> => {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      return response.data;
+      // Make POST request to login endpoint
+      const response = await fetch(`${API_URL}/api/users/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      // Handle non-200 responses
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      
+      // Store authentication data in localStorage for persistence
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      return data;
     } catch (error) {
-      throw new Error('Login failed');
+      console.error('Login error:', error);
+      throw error;
     }
   },
 
-  /**
-   * Register new user
-   * @param email User's email
-   * @param password User's password
-   * @returns User data and token
-   */
-  register: async (email: string, password: string) => {
-    try {
-      const response = await api.post('/auth/register', { email, password });
-      return response.data;
-    } catch (error) {
-      throw new Error('Registration failed');
-    }
+  // Handle user logout
+  logout: () => {
+    // Clear all auth-related data from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   },
+
+  // Check if user is currently authenticated
+  isAuthenticated: (): boolean => {
+    // Check if token exists in localStorage
+    return !!localStorage.getItem('token');
+  },
+
+  // Retrieve current user data
+  getCurrentUser: (): User | null => {
+    // Get and parse user data from localStorage
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  }
 };
 
-/**
- * Game API calls
- */
+// Game API
 export const gameAPI = {
-  /**
-   * Save game state
-   * @param gameState Current state of the game
-   * @returns Saved game data
-   */
-  saveGame: async (gameState: any) => {
+  // Get current game state
+  getGameState: async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await api.post('/games/save', gameState, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await fetch(`${API_URL}/api/game/state`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch game state');
+      }
+      
+      return await response.json();
     } catch (error) {
-      throw new Error('Failed to save game');
+      console.error('Get game state error:', error);
+      throw error;
     }
   },
 
-  /**
-   * Load saved game
-   * @param gameId ID of the game to load
-   * @returns Game state data
-   */
-  loadGame: async (gameId: string) => {
+  // Make a move
+  makeMove: async (move: GameMove) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await api.get(`/games/${gameId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await fetch(`${API_URL}/api/game/move`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(move)
       });
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error('Invalid move');
+      }
+      
+      return await response.json();
     } catch (error) {
-      throw new Error('Failed to load game');
+      console.error('Make move error:', error);
+      throw error;
     }
   },
 
-  /**
-   * Get user's game history
-   * @returns Array of previous games
-   */
-  getGameHistory: async () => {
+  // Save game state
+  saveGame: async (gameState: GameState) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await api.get('/games/history', {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await fetch(`${API_URL}/api/game/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(gameState)
       });
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error('Failed to save game');
+      }
+      
+      return await response.json();
     } catch (error) {
-      throw new Error('Failed to load game history');
+      console.error('Save game error:', error);
+      throw error;
     }
   }
-};
-
-/**
- * User API calls
- */
-export const userAPI = {
-  /**
-   * Get user profile
-   * @returns User profile data
-   */
-  getProfile: async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await api.get('/users/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to load profile');
-    }
-  },
-
-  /**
-   * Update user profile
-   * @param userData Updated user data
-   * @returns Updated profile data
-   */
-  updateProfile: async (userData: any) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await api.put('/users/profile', userData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to update profile');
-    }
-  }
-};
-
-// Add interceptor for token handling
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Add interceptor for response handling
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle token expiration
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
-export default {
-  auth: authAPI,
-  game: gameAPI,
-  user: userAPI
 }; 
