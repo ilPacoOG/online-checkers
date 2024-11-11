@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
 import axios from 'axios';
+import cors from 'cors';
 
 const app = express();
 const PORT = 3000;
+
+app.use(cors({ origin: 'http://localhost:5173' })); // Adjust the port if necessary
 
 
 // pexels API key
@@ -43,7 +46,7 @@ app.get('/space-image', async (req: Request, res: Response) => {
 
 
 
-// app.use(express.static('public'));
+app.use(express.static('public'));
 
 app.listen(PORT, () => {
     console.log(`server is running on http://localhost:${PORT}`)
