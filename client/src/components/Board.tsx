@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PieceType, Coordinates } from '../types/types';
-import { isValidMove, executeMove, isCaptureMove, executeCapture, promoteToKing, isPlayerTurn, toggleTurn, canContinueCapture } from '../services/gameService';
+import { isValidMove, executeMove, isCaptureMove, executeCapture, promoteToKing, toggleTurn, isPlayerTurn, canContinueCapture, fetchAIMove } from '../services/gameService';
 import Square from './Square';
 import './Board.css';
 
@@ -20,39 +20,81 @@ const Board: React.FC = () => {
     const [selectedPiece, setSelectedPiece] = useState<Coordinates | null>(null);
     const [canMakeAdditionalCapture, setCanMakeAdditionalCapture] = useState(false);
 
-    const handleSquareClick = (row: number, col: number) => {
+    const handleSquareClick = async (row: number, col: number) => {
         const selectedSquare = { row, col };
+        const piece = board[row][col];
+
+        console.log("Clicked on square:", selectedSquare, "Piece:", piece);
 
         if (selectedPiece) {
+            console.log("Currently selected piece:", selectedPiece);
+            console.log("Attempting move from", selectedPiece, "to", selectedSquare);
+
             if (isCaptureMove(board, selectedPiece, selectedSquare)) {
                 const newBoard = executeCapture(board, selectedPiece, selectedSquare);
                 setBoard(promoteToKing(newBoard, selectedSquare));
 
-                // Check if further captures are possible
                 if (canContinueCapture(newBoard, selectedSquare)) {
-                    setSelectedPiece(selectedSquare); // Keep the same piece selected for multiple capture
-                    setCanMakeAdditionalCapture(true); // Enable additional capture
+                    setSelectedPiece(selectedSquare);
+                    setCanMakeAdditionalCapture(true);
                 } else {
                     setCanMakeAdditionalCapture(false);
-                    toggleTurn(); // End the turn if no more captures are possible
+                    toggleTurn();
+                    console.log("Player turn over, fetching AI move...");
+                    await handleAIMove(newBoard); // Trigger AI move
                 }
             } else if (isValidMove(board, selectedPiece, selectedSquare) && !canMakeAdditionalCapture) {
                 const newBoard = executeMove(board, selectedPiece, selectedSquare);
                 setBoard(promoteToKing(newBoard, selectedSquare));
                 toggleTurn();
+                console.log("Valid player move, fetching AI move...");
+                await handleAIMove(newBoard); // Trigger AI move
             } else {
                 console.log("Invalid move");
             }
 
             if (!canMakeAdditionalCapture) {
-                setSelectedPiece(null); // Clear selection if move is completed
+                setSelectedPiece(null);
             }
         } else {
-            const piece = board[row][col];
+            // Allow selecting a piece only if it matches the player's turn and is a valid piece type
             if ((isPlayerTurn() && (piece === PieceType.PlayerPiece || piece === PieceType.PlayerKing)) ||
                 (!isPlayerTurn() && (piece === PieceType.AIPiece || piece === PieceType.AIKing))) {
                 setSelectedPiece(selectedSquare);
+                console.log("Piece selected:", selectedSquare);
             }
+        }
+    };
+
+    const handleAIMove = async (updatedBoard: PieceType[][]) => {
+        try {
+            const response = await fetchAIMove(updatedBoard);
+            
+            console.log("Raw AI move response:", response);
+
+            if (response && Array.isArray(response.start) && Array.isArray(response.end)) {
+                const start: Coordinates = { row: response.start[0], col: response.start[1] };
+                const end: Coordinates = { row: response.end[0], col: response.end[1] };
+
+                console.log("AI move:", start, "to", end);
+
+                if (
+                    start.row >= 0 && start.row < updatedBoard.length &&
+                    start.col >= 0 && start.col < updatedBoard[0].length &&
+                    end.row >= 0 && end.row < updatedBoard.length &&
+                    end.col >= 0 && end.col < updatedBoard[0].length
+                ) {
+                    const newBoard = executeMove(updatedBoard, start, end);
+                    setBoard(promoteToKing(newBoard, end));
+                    toggleTurn();
+                } else {
+                    console.error("AI move out of bounds:", { start, end });
+                }
+            } else {
+                console.error("AI move is not in the correct format:", response);
+            }
+        } catch (error) {
+            console.error("Error handling AI move:", error);
         }
     };
 
