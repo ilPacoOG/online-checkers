@@ -1,4 +1,5 @@
 import { PieceType, Coordinates } from '../types/types';
+import axios from 'axios';
 
 let playerTurn = true;
 
@@ -14,6 +15,8 @@ export function isValidMove(
     start: Coordinates,
     end: Coordinates
 ): boolean {
+    console.log("Checking move validity from:", start, "to:", end, "Piece:", board[start.row][start.col]);
+
     const piece = board[start.row][start.col];
     const targetPiece = board[end.row][end.col];
 
@@ -175,6 +178,22 @@ export function promoteToKing(
 
     return newBoard;
 }
+/**
+ * Sends a request to the server to get the AI's move based on the current board state.
+ * @param board Current game board as a 2D array of PieceTypes.
+ * @returns The AI's move as a start and end position.
+ */
+export async function fetchAIMove(board: PieceType[][]): Promise<{ start: Coordinates; end: Coordinates } | null> {
+    try {
+        //trying to get the AI move from the server
+        const response = await axios.post('http://localhost:3001/api/ai/move', { board });
+
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching AI move:", error);
+        return null;
+    }
+}
 
 /**
  * Checks if it's the player's turn
@@ -190,5 +209,3 @@ export function isPlayerTurn(): boolean {
 export function toggleTurn(): void {
     playerTurn = !playerTurn;
 }
-
-// TODO: Add AI move generation logic
