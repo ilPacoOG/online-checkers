@@ -3,12 +3,21 @@ const forceDatabaseRefresh = false;  // Flag to control whether to force a datab
 import dotenv from 'dotenv';
 dotenv.config();
 
+// console.log("OpenAI API Key:", process.env.OPENAI_API_KEY);  // Check if the API key is loaded from the .env file
+
 import express from 'express';
+import cors from 'cors';
 import sequelize from './config/connection.js'; // Import the initialized Sequelize instance
 import routes from './routes/index.js';  // Import the routes for handling different endpoints
 
 const app = express();  // Create an Express application
-const PORT = process.env.PORT || 3001;  // Define the port for the server to listen on
+const PORT = process.env.PORT || 3001; // Define the port for the server to listen on
+
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests from this frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 // Serves static files from the client's dist folder, typically for a built React application
 app.use(express.static('../client/dist'));
