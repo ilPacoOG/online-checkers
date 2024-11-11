@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { PieceType, Coordinates } from '../types/types';
-import { isValidMove, executeMove, isCaptureMove, executeCapture, promoteToKing, toggleTurn, isPlayerTurn, canContinueCapture, fetchAIMove } from '../services/gameService';
+import {
+    isValidMove, executeMove, isCaptureMove, executeCapture,
+    promoteToKing, toggleTurn, isPlayerTurn, canContinueCapture, fetchAIMove
+} from '../services/gameService';
 import Square from './Square';
 import './Board.css';
 
@@ -66,30 +69,49 @@ const Board: React.FC = () => {
         }
     };
 
+    const sendFeedbackForInvalidMove = async (board: PieceType[][]) => {
+        try {
+            console.log("Sending feedback for invalid AI move...");
+            const response = await fetch('http://localhost:3001/api/ai/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ board })
+            });
+            const newMove = await response.json();
+            console.log("Received new AI move:", newMove);
+
+            if (newMove && Array.isArray(newMove.start) && Array.isArray(newMove.end)) {
+                const start: Coordinates = { row: newMove.start[0], col: newMove.start[1] };
+                const end: Coordinates = { row: newMove.end[0], col: newMove.end[1] };
+                applyAIMove(board, start, end);
+            }
+        } catch (error) {
+            console.error("Error sending feedback for invalid AI move:", error);
+        }
+    };
+
+    const applyAIMove = (updatedBoard: PieceType[][], start: Coordinates, end: Coordinates) => {
+        if (isValidMove(updatedBoard, start, end) || isCaptureMove(updatedBoard, start, end)) {
+            const newBoard = isCaptureMove(updatedBoard, start, end)
+                ? executeCapture(updatedBoard, start, end)
+                : executeMove(updatedBoard, start, end);
+            setBoard(promoteToKing(newBoard, end));
+            toggleTurn();
+        } else {
+            console.error("Invalid AI move generated:", { start, end });
+            sendFeedbackForInvalidMove(updatedBoard);
+        }
+    };
+
     const handleAIMove = async (updatedBoard: PieceType[][]) => {
         try {
             const response = await fetchAIMove(updatedBoard);
-            
             console.log("Raw AI move response:", response);
 
             if (response && Array.isArray(response.start) && Array.isArray(response.end)) {
                 const start: Coordinates = { row: response.start[0], col: response.start[1] };
                 const end: Coordinates = { row: response.end[0], col: response.end[1] };
-
-                console.log("AI move:", start, "to", end);
-
-                if (
-                    start.row >= 0 && start.row < updatedBoard.length &&
-                    start.col >= 0 && start.col < updatedBoard[0].length &&
-                    end.row >= 0 && end.row < updatedBoard.length &&
-                    end.col >= 0 && end.col < updatedBoard[0].length
-                ) {
-                    const newBoard = executeMove(updatedBoard, start, end);
-                    setBoard(promoteToKing(newBoard, end));
-                    toggleTurn();
-                } else {
-                    console.error("AI move out of bounds:", { start, end });
-                }
+                applyAIMove(updatedBoard, start, end);
             } else {
                 console.error("AI move is not in the correct format:", response);
             }
