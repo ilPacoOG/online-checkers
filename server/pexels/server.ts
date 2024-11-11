@@ -4,6 +4,7 @@ import axios from 'axios';
 const app = express();
 const PORT = 3000;
 
+
 // pexels API key
 const PEXELS_API_KEY = 'UR3ulVQekKy8xHa3dRt9s51wAyatfMS0Qr21ogHT7A858beywtQBEKDy'
 
@@ -36,12 +37,14 @@ app.get('/space-image', async (req: Request, res: Response) => {
             console.error('Error fetching space background:', error)
             res.status(500).json({ error: 'Error fetching space background' });
         }
+        console.log('hello')
       
 });
 
 
 
-app.use(express.static('public'));
+// app.use(express.static('public'));
+
 app.listen(PORT, () => {
     console.log(`server is running on http://localhost:${PORT}`)
 });

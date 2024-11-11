@@ -1,6 +1,6 @@
 // Import necessary dependencies
 import { FC } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, } from 'react-router-dom';
 // Import components
 import Home from './pages/Home';
 import Game from './pages/Game';

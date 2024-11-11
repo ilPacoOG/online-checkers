@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
+// import axios from 'axios';
 
 // Login component definition
 const Login: React.FC = () => {
@@ -25,7 +26,13 @@ const Login: React.FC = () => {
 
     try {
       // TODO: Add actual authentication logic here
-      console.log('Login attempted with:', { email, password });
+      // const response = await axios.post('http://localhost:3001/auth/login', { email, password });
+      // const token = response.data.token;
+      // console.log('Login attempted with:', { email, password });
+
+
+      //    // Save token in localStorage (or sessionStorage) for future requests
+      //    localStorage.setItem('token', token);
       
       // Temporary: Navigate to game on "successful" login
       navigate('/game');
