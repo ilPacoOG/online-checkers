@@ -1,140 +1,85 @@
-// Import necessary dependencies and types
-import { FC, useEffect, useState } from 'react';
+// Import necessary dependencies
+import { FC, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { gameAPI } from '../services/apiService';
 import Board from '../components/Board';
 import './Game.css';
+import axios from 'axios';
 
-/**
- * Game Component
- * Main container for the checkers game
- * Handles game state management and API interactions
- */
+// Game component - handles the game page layout and navigation
 const Game: FC = () => {
-  // Get authentication context and navigation
-  const { isAuthenticated, user } = useAuth();
+  // Hook for navigation between pages
   const navigate = useNavigate();
 
-  // State for managing the current game state
-  const [gameState, setGameState] = useState(null);
-
-  // State for tracking game status
-  const [isLoading, setIsLoading] = useState(false);
+  // State for storing the background image URL
+  const [backgroundImage, setBackgroundImage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Effect hook to check authentication
-   * Redirects to login if user is not authenticated
-   */
+  // Fetch the background image from Pexels API on component mount
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, navigate]);
+    const fetchBackgroundImage = async () => {
+      try {
+        // Make the API request to Pexels
+        const response = await axios.get('https://api.pexels.com/v1/search', {
+          headers: {
+            Authorization: 'UR3ulVQekKy8xHa3dRt9s51wAyatfMS0Qr21ogHT7A858beywtQBEKDy',
+          },
+          params: {
+            query: 'space background',
+            per_page: 25,
+          },
+        });
 
-  /**
-   * Handles saving the current game state
-   * Makes API call to persist game data
-   */
-  const handleSaveGame = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      await gameAPI.saveGame(gameState);
-      // Optional: Show success message
-    } catch (error) {
-      setError('Failed to save game. Please try again.');
-      console.error('Save game error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        if (response.data.photos.length > 0) {
+          const randomIndex = Math.floor(Math.random() * response.data.photos.length);
+          const randomPhoto = response.data.photos[randomIndex];
+          setBackgroundImage(randomPhoto.src.original); // Set the background image URL
+        } else {
+          setError('No space background image found');
+        }
+      } catch (error) {
+        setError('Error fetching space background');
+        console.error('Error fetching space background:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  /**
-   * Handles loading a saved game
-   * @param gameId - ID of the game to load
-   */
-  const handleLoadGame = async (gameId: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const savedGame = await gameAPI.loadGame(gameId);
-      setGameState(savedGame);
-    } catch (error) {
-      setError('Failed to load game. Please try again.');
-      console.error('Load game error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    fetchBackgroundImage();
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
 
-  /**
-   * Callback for updating game state from the Board component
-   * @param newState - New game state from the board
-   */
-  const handleStateChange = (newState: any) => {
-    setGameState(newState);
-  };
+  if (loading) {
+    return <div>Loading...</div>; // Show loading text while fetching the image
+  }
 
-  /**
-   * Handles starting a new game
-   * Resets the game state
-   */
-  const handleNewGame = () => {
-    setGameState(null);
-    // Additional reset logic if needed
-  };
-
-  // Show loading spinner while operations are in progress
-  if (isLoading) {
-    return (
-      <div className="game-container">
-        <div className="loading-spinner">Loading...</div>
-      </div>
-    );
+  if (error) {
+    return <div>{error}</div>; // Show error message if there's an issue fetching the image
   }
 
   return (
-    <div className="game-container">
-      {/* Game header with user info */}
-      <div className="game-header">
-        <h2>Welcome, {user?.email}</h2>
-        <div className="game-controls">
-          <button 
-            onClick={handleNewGame}
-            className="control-button"
-          >
-            New Game
-          </button>
-          <button 
-            onClick={handleSaveGame}
-            className="control-button"
-            disabled={!gameState}
-          >
-            Save Game
-          </button>
-        </div>
+    // Main game container with dynamic background image
+    <div
+      className="game-container"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        height: '80vh'
+      }}
+    >
+      {/* Game board section */}
+      <div className="game-board">
+        <Board />
       </div>
-
-      {/* Error message display */}
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
-
-      {/* Main game board */}
-      <div className="game-content">
-        <Board 
-          onStateChange={handleStateChange}
-          initialState={gameState}
-        />
-      </div>
-
-      {/* Game status and info */}
+      {/* Game information and controls panel */}
       <div className="game-info">
-        {/* Add game status, scores, or other info here */}
+        <h2>Game Status</h2>
+        {/* Current player turn indicator */}
+        <div className="status">Player's Turn</div>
+        {/* Navigation button to return to home page */}
+        <button className="back-button" onClick={() => navigate('/')}>
+          Back to Home
+        </button>
       </div>
     </div>
   );
