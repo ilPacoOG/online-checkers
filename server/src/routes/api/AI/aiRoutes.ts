@@ -1,51 +1,26 @@
-import { Router, Request, Response } from 'express';
+import express from 'express';
+import { generateAIMove } from '../../../controllers/aiService.js';
 
-// POST for creating a new game
-export const createGame = async (_req: Request, _res: Response) => {
+const router = express.Router();
+
+router.post('/move', async (req, res) => {
     try {
-        
+        const { board } = req.body;
+        console.log("Received board state:", board);
+
+        if (!Array.isArray(board) || !board.every(row => Array.isArray(row))) {
+            console.error("Invalid board format received.");
+            return res.status(400).json({ error: "Invalid board format" });
+        }
+
+        const move = await generateAIMove(board);
+        console.log("Generated AI move:", move);
+
+        return res.json(move);  // Always return a response
     } catch (error) {
-        
+        console.error("Error generating AI move:", error);
+        return res.status(500).json({ error: "Failed to generate AI move" });  // Add explicit return here
     }
-}
+});
 
-// GET for rendering the board
-export const getGame = async (_req: Request, _res: Response) => {
-    try {
-        
-    } catch (error) {
-        
-    }
-}
-
-// POST to send a move to the server
-export const sendMove = async (_req: Request, _res: Response) => {
-    try {
-        
-    } catch (error) {
-        
-    }
-}
-
-// POST for ai move
-export const aiMove = async (_req: Request, _res: Response) => {
-    try {
-        
-    } catch (error) {
-        
-    }
-}
-
-
-
-
-
-const router = Router();
-
-router.get('/', createGame);
-router.get('/:gameId', getGame);
-router.get('/:gameId/move', sendMove);
-router.get('/:gameId/ai-move', aiMove);
-
-
-export default router
+export default router;

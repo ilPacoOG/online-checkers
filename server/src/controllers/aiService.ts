@@ -1,55 +1,48 @@
-// import { type Request, type Response } from 'express';
-// import { OpenAI } from '@langchain/openai';
-// const { Configuration, OpenAIApi } = require("openai");
-// import { PromptTemplate } from '@langchain/core/prompts';
-// // import dotenv from 'dotenv';
-// // const router = express.Router();
-
-// // dotenv.config();
-
-// // grabs the OpenAi API key from enviroment variables
-// const apiKey = process.env.OPENAI_API_KEY;
-// let model: OpenAI;
-
-// if (apiKey) {
-//   model = new OpenAI({temperature: 0, openAIApiKey: apiKey, modelName: 'gpt-3.5-turbo'});
-// } else {
-//     console.error('OPENAI_API_KEY is not configured');
-// }
-
-// async function getAIMove(boardState: any, currentPlayer: any) {
-//     const prompt = `You are playing a game of checkers against a user on the website. The current board state is: ${JSON.stringify(boardState)}. Its ${currentPlayer}'s turn. Please suggest the best move possible in the format of: "". Please follow checkers rules strictly(there is absolutely no moving backwards, unless you are a king.) `
-// }
-
 import OpenAI from 'openai';
 import { PieceType } from '../types/types';
 
-// Initialize OpenAI API client with configuration
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-/**
- * Generates the AI's move based on the current board state.
- * @param board Current game board as a 2D array of PieceTypes
- * @returns The AI's move as a starting and ending position
- */
 export async function generateAIMove(
     board: PieceType[][]
 ): Promise<{ start: [number, number], end: [number, number] }> {
     const boardState = JSON.stringify(board);
 
     try {
-        // Update the completion request
-        const response = await openai.completions.create({
-            model: 'text-davinci-003',
-            prompt: `You are playing checkers as the AI. The current board state is as follows: ${boardState}. What is your next move? Provide the starting and ending coordinates in the format {start: [row, col], end: [row, col]}.`,
+        const response = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are an AI playing checkers and should respond only in JSON format.',
+                },
+                {
+                    role: 'user',
+                    content: `The current board state is as follows: ${boardState}. Based on this board, provide the next move in JSON format as { "start": [row, col], "end": [row, col] } without any explanation.`,
+                },
+            ],
             max_tokens: 50,
             temperature: 0.7,
         });
+        //This could be an issue
+        const aiResponse = response.choices[0].message && response.choices[0].message.content ? response.choices[0].message.content.trim() : '';
 
-        const move = JSON.parse(response.choices[0].text.trim());
-        return move;
+        // Attempt to parse the response as JSON
+        try {
+            const move = JSON.parse(aiResponse || '{}');
+            if (move.start && move.end) {
+                return move;
+            } else {
+                throw new Error("Invalid move format");
+            }
+        } catch (parseError) {
+            console.error("Failed to parse AI response as JSON:", parseError);
+            console.error("AI Response was:", aiResponse);
+            throw new Error("Failed to generate AI move.");
+        }
+
     } catch (error) {
         console.error("Error generating AI move:", error);
         throw new Error("Failed to generate AI move.");
