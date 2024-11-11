@@ -1,22 +1,18 @@
-import apiRoutes from './api/users/index.js';
-import express from 'express';
+import { Router, Request, Response } from 'express';
+import { userRouter } from './api/users/user-routes.js';
+import authRouter from './api/users/auth-routes.js';
 
-// import { authenticateToken } from '../middleware/auth.js';
-import authRoutes from '../routes/api/users/auth-routes.js';
-import aiRoutes from './api/AI/aiRoutes.js';    // AI-related routes
-import moveRoutes from './api/AI/move.js';      // Game move-related routes
-const router = express.Router();
+const router = Router();
 
-// Authentication routes
-router.use('/auth', authRoutes);
+// Auth routes
+router.use('/auth', authRouter);
 
-// User routes, keeping the current setup intact
-router.use('/api', apiRoutes);
+// User routes
+router.use('/users', userRouter);
 
-// AI-specific routes (e.g., /api/ai/move)
-router.use('/api/ai', aiRoutes);
-
-// Game move routes (e.g., /api/games/:gameId/move)
-router.use('/api/games', moveRoutes);
+// 404 handler
+router.use('*', (_req: Request, res: Response) => {
+  res.status(404).json({ message: 'Route not found' });
+});
 
 export default router;

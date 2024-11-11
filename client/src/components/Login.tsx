@@ -1,88 +1,109 @@
 // Import necessary dependencies
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
-// Login component definition
+/**
+ * Login Component
+ * Handles user authentication and login form
+ */
 const Login: React.FC = () => {
-  // State management for form inputs and error handling
+  // State management for form fields and UI states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Hook for navigation
+  // Hooks for navigation and authentication
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  // Handle form submission
+  /**
+   * Handle form submission
+   * Attempts to log in the user and redirects to game page on success
+   * @param e - Form submission event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
     
-    // Basic form validation
+    // Validate form inputs
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
     }
 
     try {
-      // TODO: Add actual authentication logic here
-      console.log('Login attempted with:', { email, password });
+      // Start loading state and clear any previous errors
+      setIsLoading(true);
+      setError(null);
       
-      // Temporary: Navigate to game on "successful" login
-      navigate('/game');
+      // Attempt login
+      await login(email, password);
+      console.log('Login successful');
+      navigate('/game'); // Redirect to game page on success
+      
     } catch (err) {
-      setError('Invalid email or password');
+      // Handle login errors
+      console.error('Login error:', err);
+      setError(
+        err instanceof Error 
+          ? err.message 
+          : 'Unable to connect to server. Please try again.'
+      );
+    } finally {
+      // Reset loading state regardless of outcome
+      setIsLoading(false);
     }
   };
 
   return (
-    // Main container for centering the login form
     <div className="login-container">
-      {/* Login form card */}
-      <div className="login-box">
-        <h2>Login to Play Checkers</h2>
+      <form onSubmit={handleSubmit} className="login-form">
+        <h2>Login</h2>
         
-        {/* Conditional error message display */}
-        {error && <div className="error-message">{error}</div>}
+        {/* Error message display */}
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
         
-        {/* Login form */}
-        <form onSubmit={handleSubmit}>
-          {/* Email input group */}
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          {/* Password input group */}
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-          {/* Submit button */}
-          <button type="submit" className="login-button">
-            Login
-          </button>
-        </form>
-
-        {/* Sign up link */}
-        <div className="login-footer">
-          <p>Don't have an account? <span onClick={() => navigate('/signup')}>Sign up</span></p>
+        {/* Email input field */}
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
+            required
+          />
         </div>
-      </div>
+
+        {/* Password input field */}
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+            required
+          />
+        </div>
+
+        {/* Submit button with loading state */}
+        <button 
+          type="submit" 
+          className="login-button"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
     </div>
   );
 };

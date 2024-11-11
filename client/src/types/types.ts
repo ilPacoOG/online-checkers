@@ -12,3 +12,9 @@ export interface Coordinates {
   row: number;
   col: number;
 }
+
+// Interface for AI moves
+export interface AIMove {
+  start: number[];
+  end: number[];
+}

@@ -1,76 +1,60 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../services/apiService';
 
-/**
- * Interface defining the shape of the authentication context
- */
-interface AuthContextType {
-  isAuthenticated: boolean;      // Flag indicating if user is logged in
-  user: User | null;             // Current user data or null if not logged in
-  login: (email: string, password: string) => Promise<void>;  // Login function
-  logout: () => void;            // Logout function
-}
-
-/**
- * Interface defining the shape of a user object
- */
+// Define types for the auth context
 interface User {
-  email: string;    // User's email address
-  id: string;       // Unique user identifier
+  id: number;
+  email: string;
 }
 
-// Create the authentication context with undefined default value
+interface AuthContextType {
+  isAuthenticated: boolean;
+  user: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+}
+
+// Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * Authentication Provider Component
- * Wraps the application and provides authentication state and methods
- * @param children - Child components to be wrapped
- */
+// Auth Provider component that wraps the app
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // State for tracking authentication status
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // State for storing current user data
-  const [user, setUser] = useState<User | null>(null);
+  // Initialize state with values from localStorage
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authAPI.isAuthenticated());
+  const [user, setUser] = useState<User | null>(() => authAPI.getCurrentUser());
 
-  /**
-   * Handles user login
-   * @param email - User's email
-   * @param password - User's password
-   * @throws Error if login fails
-   */
+  // Effect to check authentication status when component mounts
+  useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem('token');
+    const savedUser = authAPI.getCurrentUser();
+    
+    if (token && savedUser) {
+      setIsAuthenticated(true);
+      setUser(savedUser);
+    }
+  }, []);
+
+  // Handle user login
   const login = async (email: string, password: string) => {
     try {
-      // Attempt to login using the auth API
-      const response = await authAPI.login(email, password);
-      // Store authentication token in local storage
-      localStorage.setItem('token', response.token);
-      // Store user data in local storage
-      localStorage.setItem('user', JSON.stringify(response.user));
-      // Update user state
+      const response = await authAPI.login({ email, password });
       setUser(response.user);
-      // Update authentication state
       setIsAuthenticated(true);
     } catch (error) {
-      throw new Error('Login failed');
+      console.error('Login error in context:', error);
+      throw error;
     }
   };
 
-  /**
-   * Handles user logout
-   * Clears all authentication data and resets state
-   */
+  // Handle user logout
   const logout = () => {
-    // Remove authentication data from local storage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    // Reset user state to null
+    authAPI.logout();
     setUser(null);
-    // Reset authentication state to false
     setIsAuthenticated(false);
   };
 
-  // Provide authentication context to children components
+  // Provide auth context to children components
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
@@ -78,14 +62,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-/**
- * Custom hook for accessing authentication context
- * @returns Authentication context value
- * @throws Error if used outside of AuthProvider
- */
+// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  // Ensure hook is used within AuthProvider
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

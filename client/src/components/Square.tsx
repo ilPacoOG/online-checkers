@@ -18,6 +18,21 @@ const Square: React.FC<SquareProps> = ({
   isBlack,
   onClick
 }) => {
+  const getPieceClass = () => {
+    switch (piece) {
+      case PieceType.PlayerPiece:
+        return 'piece player-piece';
+      case PieceType.AIPiece:
+        return 'piece ai-piece';
+      case PieceType.PlayerKing:
+        return 'piece player-king';
+      case PieceType.AIKing:
+        return 'piece ai-king';
+      default:
+        return '';
+    }
+  };
+
   return (
     // Main square container
     <div
@@ -33,10 +48,7 @@ const Square: React.FC<SquareProps> = ({
       {piece !== PieceType.Empty && (
         <div
           // Dynamic class names for the piece
-          className={`
-            piece                                           /* Base piece class */
-            ${piece === PieceType.PlayerPiece ? 'player' : 'ai'} /* Player or AI piece */
-          `}
+          className={getPieceClass()}
         />
       )}
     </div>
