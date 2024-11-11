@@ -111,37 +111,125 @@ export const gameAPI = {
  */
 export const userAPI = {
   /**
-   * Get user profile
-   * @returns User profile data
+   * Login user
+   * @param credentials User login credentials
    */
-  getProfile: async () => {
+  login: async (credentials: { email: string; password: string }) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await api.get('/users/profile', {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await fetch('/api/users/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
       });
-      return response.data;
+
+      if (!response.ok) {
+        throw new Error('Authentication failed');
+      }
+
+      return await response.json();
     } catch (error) {
-      throw new Error('Failed to load profile');
+      console.error('Login error:', error);
+      throw error;
     }
   },
 
   /**
-   * Update user profile
-   * @param userData Updated user data
-   * @returns Updated profile data
+   * Get all users
    */
-  updateProfile: async (userData: any) => {
+  getAllUsers: async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await api.put('/users/profile', userData, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await fetch('/api/users', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
-      return response.data;
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+
+      return await response.json();
     } catch (error) {
-      throw new Error('Failed to update profile');
+      console.error('Get users error:', error);
+      throw error;
     }
-  }
+  },
+
+  /**
+   * Create new user
+   * @param userData User registration data
+   */
+  createUser: async (userData: { email: string; password: string }) => {
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create user');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Create user error:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update user
+   * @param id User ID
+   * @param userData Updated user data
+   */
+  updateUser: async (id: string, userData: { email: string; password: string }) => {
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Update user error:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Delete user
+   * @param id User ID
+   */
+  deleteUser: async (id: string) => {
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Delete user error:', error);
+      throw error;
+    }
+  },
 };
 
 // Add interceptor for token handling
