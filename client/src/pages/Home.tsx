@@ -11,6 +11,8 @@ const Home: FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
+  console.log('Auth status:', isAuthenticated); // Add this for debugging
+
   // Render the component
   return (
     // Main container for the home page
@@ -23,12 +25,17 @@ const Home: FC = () => {
               Play Game
             </button>
           ) : (
-            <button className="primary-button" onClick={() => navigate('/login')}>
-              Login to Play
-            </button>
+            <>
+              <button className="primary-button" onClick={() => navigate('/login')}>
+                Login
+              </button>
+              <button className="secondary-button" onClick={() => navigate('/register')}>
+                Create Account
+              </button>
+            </>
           )}
-          <button className="secondary-button" onClick={() => navigate('/rules')}>
-            View Rules
+          <button className="rules-button" onClick={() => navigate('/rules')}>
+            Game Rules
           </button>
         </div>
       </div>

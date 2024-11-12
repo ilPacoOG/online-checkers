@@ -31,17 +31,22 @@
   margin-top: 30px;
 }
 
-.primary-button, .secondary-button {
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.primary-button, 
+.secondary-button, 
+.rules-button {
   padding: 12px 24px;
   border: none;
   border-radius: 4px;
   font-size: 1.1rem;
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
-}
-
-.primary-button:hover, .secondary-button:hover {
-  transform: translateY(-2px);
+  width: 100%;
 }
 
 .primary-button {
@@ -51,15 +56,27 @@
 
 .primary-button:hover {
   background-color: #2980b9;
+  transform: translateY(-2px);
 }
 
 .secondary-button {
-  background-color: #95a5a6;
+  background-color: #2ecc71;
   color: white;
 }
 
 .secondary-button:hover {
+  background-color: #27ae60;
+  transform: translateY(-2px);
+}
+
+.rules-button {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.rules-button:hover {
   background-color: #7f8c8d;
+  transform: translateY(-2px);
 }
 
 @media (max-width: 480px) {
@@ -71,7 +88,9 @@
     font-size: 2rem;
   }
 
-  .primary-button, .secondary-button {
+  .primary-button, 
+  .secondary-button, 
+  .rules-button {
     font-size: 1rem;
     padding: 10px 20px;
   }
