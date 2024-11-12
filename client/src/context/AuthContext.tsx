@@ -13,6 +13,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (username: string, email: string, password: string) => Promise<void>;
+  createUser: (username: string, email: string, password: string) => Promise<void>;
 }
 
 // Create the auth context
@@ -66,35 +67,81 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Handle user logout
   const logout = () => {
     setIsAuthenticated(false);
-    setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    // Don't remove 'users' from localStorage as we need to keep registered users
   };
 
   // Handle user registration
   const register = async (username: string, email: string, password: string) => {
     try {
+      // Check if user already exists
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const existingUser = users.find((u: any) => u.email === email);
+      
+      if (existingUser) {
+        throw new Error('User already exists');
+      }
+
+      // Create new user
       const newUser = {
         id: Date.now(),
         username,
-        email
+        email,
+        password // In a real app, this should be hashed
       };
 
-      // Store user credentials for login
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      users.push({ ...newUser, password });
+      // Add to users array
+      users.push(newUser);
       localStorage.setItem('users', JSON.stringify(users));
 
-      // Set current user
+      // Auto login after creation
+      const { password: _, ...userWithoutPassword } = newUser;
+      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
       localStorage.setItem('token', 'mock-jwt-token');
-      localStorage.setItem('user', JSON.stringify(newUser));
 
-      setUser(newUser);
+      setUser(userWithoutPassword);
       setIsAuthenticated(true);
+
+      return userWithoutPassword;
     } catch (error) {
-      console.error('Registration error:', error);
-      throw new Error('Registration failed');
+      console.error('Create user error:', error);
+      throw error;
+    }
+  };
+
+  // Handle user creation
+  const createUser = async (username: string, email: string, password: string) => {
+    try {
+      // Check if user already exists
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const existingUser = users.find((u: any) => u.email === email);
+      
+      if (existingUser) {
+        throw new Error('User already exists');
+      }
+
+      // Create new user
+      const newUser = {
+        id: Date.now(),
+        username,
+        email,
+        password // In a real app, this should be hashed
+      };
+
+      // Add to users array
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+
+      // Auto login after creation
+      const { password: _, ...userWithoutPassword } = newUser;
+      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      localStorage.setItem('token', 'mock-jwt-token');
+
+      setUser(userWithoutPassword);
+      setIsAuthenticated(true);
+
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Create user error:', error);
+      throw error;
     }
   };
 
@@ -105,7 +152,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       user, 
       login, 
       logout,
-      register
+      register,
+      createUser
     }}>
       {children}
     </AuthContext.Provider>

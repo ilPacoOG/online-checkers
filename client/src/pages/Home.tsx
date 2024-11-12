@@ -16,7 +16,7 @@ const Home: FC = () => {
   // Render the component
   return (
     // Main container for the home page
-    <div className="home-container">
+    <div className="home-container"> 
       <div className="home-content">
         <h1>Welcome to Checkers</h1>
         <div className="button-group">
@@ -33,7 +33,17 @@ const Home: FC = () => {
                 Create Account
               </button>
             </>
+            <>
+              <button className="primary-button" onClick={() => navigate('/login')}>
+                Login
+              </button>
+              <button className="secondary-button" onClick={() => navigate('/register')}>
+                Create New Account
+              </button>
+            </>
           )}
+          <button className="rules-button" onClick={() => navigate('/rules')}>
+            Game Rules
           <button className="rules-button" onClick={() => navigate('/rules')}>
             Game Rules
           </button>
