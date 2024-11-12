@@ -3,16 +3,14 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import sequelize from './config/connection.js'; // Import Sequelize for database connection
-import routes from './routes/index.js'; // Import checkers game API routes
-import aiRoutes from './routes/api/AI/aiRoutes.js'; // Import AI routes specifically for AI server
+import routes from './routes/index.js'; // Import your checkers game and AI routes
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const AI_PORT = 3002;
 
-// Middleware for the main server
+// Middleware
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -26,8 +24,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Main server routes (for checkers game and authentication)
-app.use(routes);
+// Primary routes for the application (e.g., Checkers Game and AI routes)
+app.use('/api', routes); // Assumes routes includes all game and AI-related routes
 
 // Authentication Mock Setup
 const MOCK_USER = {
@@ -65,29 +63,16 @@ app.get('/api/pexels', async (req: Request, res: Response) => {
   }
 });
 
-// Error handling middleware for the main server
+// Error handling middleware for general server errors
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Server error:', err);
   res.status(500).json({ message: 'Internal server error' });
 });
 
-// AI API server setup for move generation on a separate port
-const aiApp = express();
-aiApp.use(cors({ origin: '*', methods: ['GET', 'POST'], allowedHeaders: ['Content-Type'] }));
-aiApp.use(express.json());
-
-// Mount AI routes on aiApp
-aiApp.use('/api/ai', aiRoutes);
-
-// Start the AI server on a separate port
-aiApp.listen(AI_PORT, () => {
-  console.log(`AI server running on http://localhost:${AI_PORT}`);
-});
-
-// Sequelize Sync and Main Server Start
+// Sequelize Sync and Server Start
 sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => {
-    console.log(`Main server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 }).catch((error: unknown) => {
   console.error('Failed to start server due to database error:', error);

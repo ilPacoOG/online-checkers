@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3002';
+const API_URL = 'http://localhost:3001';
 
 // Game related types
 interface GameState {
