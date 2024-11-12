@@ -31,19 +31,22 @@
   margin-top: 30px;
 }
 
-.primary-button,
-.create-account-button,
-.rules-button,
-.secondary-button {
-  padding: 15px 30px;
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.primary-button, 
+.secondary-button, 
+.rules-button {
+  padding: 12px 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  transition: transform 0.2s, background-color 0.2s;
+  width: 100%;
 }
 
 .primary-button {
@@ -54,41 +57,26 @@
 .primary-button:hover {
   background-color: #2980b9;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.create-account-button {
+.secondary-button {
   background-color: #2ecc71;
   color: white;
 }
 
-.create-account-button:hover {
+.secondary-button:hover {
   background-color: #27ae60;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.secondary-button {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.secondary-button:hover {
-  background-color: #c0392b;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .rules-button {
   background-color: #95a5a6;
   color: white;
-  margin-top: 10px;
 }
 
 .rules-button:hover {
   background-color: #7f8c8d;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 480px) {
@@ -100,11 +88,10 @@
     font-size: 2rem;
   }
 
-  .primary-button,
-  .create-account-button,
-  .rules-button,
-  .secondary-button {
-    padding: 12px 20px;
+  .primary-button, 
+  .secondary-button, 
+  .rules-button {
     font-size: 1rem;
+    padding: 10px 20px;
   }
 }

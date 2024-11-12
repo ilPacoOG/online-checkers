@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/apiService';
 
 // Define types for the auth context
 interface User {
   id: number;
+  username: string;
   email: string;
 }
 
@@ -20,39 +20,52 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Auth Provider component that wraps the app
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Initialize state with values from localStorage
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authAPI.isAuthenticated());
-  const [user, setUser] = useState<User | null>(() => authAPI.getCurrentUser());
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   // Effect to check authentication status when component mounts
   useEffect(() => {
-    // Check if user is already logged in
+    // Check for existing auth token
     const token = localStorage.getItem('token');
-    const savedUser = authAPI.getCurrentUser();
-    
+    const savedUser = localStorage.getItem('user');
     if (token && savedUser) {
       setIsAuthenticated(true);
-      setUser(savedUser);
+      setUser(JSON.parse(savedUser));
     }
   }, []);
 
   // Handle user login
   const login = async (email: string, password: string) => {
     try {
-      const response = await authAPI.login({ email, password });
-      setUser(response.user);
+      // Get stored users
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find((u: any) => 
+        u.email === email && u.password === password
+      );
+
+      if (!user) {
+        throw new Error('Invalid email or password');
+      }
+
+      // Remove password from user object before storing in state
+      const { password: _, ...userWithoutPassword } = user;
+
+      // Set auth state
+      localStorage.setItem('token', 'mock-jwt-token');
+      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      
+      setUser(userWithoutPassword);
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Login error in context:', error);
-      throw error;
+      console.error('Login error:', error);
+      throw new Error('Invalid email or password');
     }
   };
 
   // Handle user logout
   const logout = () => {
-    authAPI.logout();
-    setUser(null);
     setIsAuthenticated(false);
   };
 
@@ -150,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 // Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
