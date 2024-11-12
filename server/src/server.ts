@@ -3,7 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import sequelize from './config/connection.js'; // Import Sequelize for database connection
-import routes from './routes/index.js'; // Import your checkers game API routes
+import routes from './routes/index.js'; // Import checkers game API routes
+import aiRoutes from './routes/api/AI/aiRoutes.js'; // Import AI routes specifically for AI server
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const AI_PORT = 3002;
 
-// Middleware
+// Middleware for the main server
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -25,7 +26,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Checkers Game API routes (primary functionality)
+// Main server routes (for checkers game and authentication)
 app.use(routes);
 
 // Authentication Mock Setup
@@ -64,20 +65,23 @@ app.get('/api/pexels', async (req: Request, res: Response) => {
   }
 });
 
+// Error handling middleware for the main server
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('Server error:', err);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
 // AI API server setup for move generation on a separate port
 const aiApp = express();
 aiApp.use(cors({ origin: '*', methods: ['GET', 'POST'], allowedHeaders: ['Content-Type'] }));
 aiApp.use(express.json());
-aiApp.use('/api/ai', routes); // Assumes AI-related routes are under the main routes
 
+// Mount AI routes on aiApp
+aiApp.use('/api/ai', aiRoutes);
+
+// Start the AI server on a separate port
 aiApp.listen(AI_PORT, () => {
   console.log(`AI server running on http://localhost:${AI_PORT}`);
-});
-
-// General error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Server error:', err);
-  res.status(500).json({ message: 'Internal server error' });
 });
 
 // Sequelize Sync and Main Server Start
