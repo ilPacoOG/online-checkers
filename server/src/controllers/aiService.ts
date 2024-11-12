@@ -38,6 +38,8 @@ export async function generateAIMove(
                     -The AI must immediately a valid move based on the current board state after the human player makes a move.
                     - AI kings ("4") can move in any diagonal direction.
                     - Capturing moves can only be made if there is an opponent's piece between the start and end positions, and the destination is empty.
+                    - The AI can make capture moves if it is possible to capture the human opponent's piece and the capture move is a valid move. If a multiple capture move is possible to capture multiple pieces belonging to human opponent, the AI may make a multiple capture move if it is a valid move.
+                    - If the human opponent captures an AI piece, the AI needs to make a valid move based on the current board state after the human player makes a move.
                     - Do not move into a square that is already occupied by another piece, including your own.
                     - Avoid suggesting any moves that match these previous invalid moves: ${previousMovesText}.
                     - Do not continue to suggest the same invalid moves until the board and piece placement has changed to allow the previously invalid moves to be valid moves. 
