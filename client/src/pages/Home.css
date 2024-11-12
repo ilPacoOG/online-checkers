@@ -32,15 +32,18 @@
 }
 
 .primary-button,
-.secondary-button,
-.rules-button {
-  padding: 12px 24px;
+.create-account-button,
+.rules-button,
+.secondary-button {
+  padding: 15px 30px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 100%;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .primary-button {
@@ -51,26 +54,41 @@
 .primary-button:hover {
   background-color: #2980b9;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.secondary-button {
+.create-account-button {
   background-color: #2ecc71;
   color: white;
 }
 
-.secondary-button:hover {
+.create-account-button:hover {
   background-color: #27ae60;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.secondary-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.secondary-button:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .rules-button {
   background-color: #95a5a6;
   color: white;
+  margin-top: 10px;
 }
 
 .rules-button:hover {
   background-color: #7f8c8d;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 480px) {
@@ -82,8 +100,11 @@
     font-size: 2rem;
   }
 
-  .primary-button, .secondary-button {
+  .primary-button,
+  .create-account-button,
+  .rules-button,
+  .secondary-button {
+    padding: 12px 20px;
     font-size: 1rem;
-    padding: 10px 20px;
   }
 }

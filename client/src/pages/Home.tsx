@@ -19,20 +19,40 @@ const Home: FC = () => {
         <h1>Welcome to Checkers</h1>
         <div className="button-group">
           {isAuthenticated ? (
-            <button className="primary-button" onClick={() => navigate('/game')}>
-              Play Game
-            </button>
+            <>
+              <button 
+                className="primary-button"
+                onClick={() => navigate('/game')}
+              >
+                Play Game
+              </button>
+              <button 
+                className="secondary-button"
+                onClick={() => navigate('/profile')}
+              >
+                My Profile
+              </button>
+            </>
           ) : (
             <>
-              <button className="primary-button" onClick={() => navigate('/login')}>
+              <button 
+                className="primary-button"
+                onClick={() => navigate('/login')}
+              >
                 Login
               </button>
-              <button className="secondary-button" onClick={() => navigate('/register')}>
+              <button 
+                className="create-account-button"
+                onClick={() => navigate('/register')}
+              >
                 Create New Account
               </button>
             </>
           )}
-          <button className="rules-button" onClick={() => navigate('/rules')}>
+          <button 
+            className="rules-button"
+            onClick={() => navigate('/rules')}
+          >
             Game Rules
           </button>
         </div>
