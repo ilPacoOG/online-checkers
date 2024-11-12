@@ -88,6 +88,26 @@ export const authAPI = {
     // Get and parse user data from localStorage
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
+  },
+
+  register: async (credentials: { 
+    username: string; 
+    email: string; 
+    password: string; 
+  }) => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Store user data
+    const user = {
+      id: Date.now(),
+      username: credentials.username,
+      email: credentials.email
+    };
+
+    const token = 'mock-jwt-token-' + Date.now();
+
+    return { token, user };
   }
 };
 
