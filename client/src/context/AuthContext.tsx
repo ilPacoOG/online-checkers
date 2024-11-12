@@ -12,6 +12,8 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  register: (username: string, email: string, password: string) => Promise<void>;
+  createUser: (username: string, email: string, password: string) => Promise<void>;
 }
 
 // Create the auth context
@@ -54,9 +56,92 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(false);
   };
 
+  // Handle user registration
+  const register = async (username: string, email: string, password: string) => {
+    try {
+      // Check if user already exists
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const existingUser = users.find((u: any) => u.email === email);
+      
+      if (existingUser) {
+        throw new Error('User already exists');
+      }
+
+      // Create new user
+      const newUser = {
+        id: Date.now(),
+        username,
+        email,
+        password // In a real app, this should be hashed
+      };
+
+      // Add to users array
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+
+      // Auto login after creation
+      const { password: _, ...userWithoutPassword } = newUser;
+      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      localStorage.setItem('token', 'mock-jwt-token');
+
+      setUser(userWithoutPassword);
+      setIsAuthenticated(true);
+
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Create user error:', error);
+      throw error;
+    }
+  };
+
+  // Handle user creation
+  const createUser = async (username: string, email: string, password: string) => {
+    try {
+      // Check if user already exists
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const existingUser = users.find((u: any) => u.email === email);
+      
+      if (existingUser) {
+        throw new Error('User already exists');
+      }
+
+      // Create new user
+      const newUser = {
+        id: Date.now(),
+        username,
+        email,
+        password // In a real app, this should be hashed
+      };
+
+      // Add to users array
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+
+      // Auto login after creation
+      const { password: _, ...userWithoutPassword } = newUser;
+      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      localStorage.setItem('token', 'mock-jwt-token');
+
+      setUser(userWithoutPassword);
+      setIsAuthenticated(true);
+
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Create user error:', error);
+      throw error;
+    }
+  };
+
   // Provide auth context to children components
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      user, 
+      login, 
+      logout,
+      register,
+      createUser
+    }}>
       {children}
     </AuthContext.Provider>
   );

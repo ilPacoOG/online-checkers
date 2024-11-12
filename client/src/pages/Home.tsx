@@ -23,12 +23,17 @@ const Home: FC = () => {
               Play Game
             </button>
           ) : (
-            <button className="primary-button" onClick={() => navigate('/login')}>
-              Login to Play
-            </button>
+            <>
+              <button className="primary-button" onClick={() => navigate('/login')}>
+                Login
+              </button>
+              <button className="secondary-button" onClick={() => navigate('/register')}>
+                Create New Account
+              </button>
+            </>
           )}
-          <button className="secondary-button" onClick={() => navigate('/rules')}>
-            View Rules
+          <button className="rules-button" onClick={() => navigate('/rules')}>
+            Game Rules
           </button>
         </div>
       </div>
