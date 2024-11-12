@@ -11,28 +11,52 @@ const Home: FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
+  console.log('Auth status:', isAuthenticated); // Add this for debugging
+
   // Render the component
   return (
     // Main container for the home page
-    <div className="home-container">
+    <div className="home-container"> 
       <div className="home-content">
         <h1>Welcome to Checkers</h1>
         <div className="button-group">
           {isAuthenticated ? (
-            <button className="primary-button" onClick={() => navigate('/game')}>
-              Play Game
-            </button>
-          ) : (
+            // If user is logged in
             <>
-              <button className="primary-button" onClick={() => navigate('/login')}>
+              <button 
+                className="primary-button"
+                onClick={() => navigate('/game')}
+              >
+                Play Game
+              </button>
+              <button 
+                className="secondary-button"
+                onClick={() => navigate('/profile')}
+              >
+                My Profile
+              </button>
+            </>
+          ) : (
+            // If user is not logged in
+            <>
+              <button 
+                className="primary-button"
+                onClick={() => navigate('/login')}
+              >
                 Login
               </button>
-              <button className="secondary-button" onClick={() => navigate('/register')}>
+              <button 
+                className="create-account-button"
+                onClick={() => navigate('/register')}
+              >
                 Create New Account
               </button>
             </>
           )}
-          <button className="rules-button" onClick={() => navigate('/rules')}>
+          <button 
+            className="rules-button"
+            onClick={() => navigate('/rules')}
+          >
             Game Rules
           </button>
         </div>
