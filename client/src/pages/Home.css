@@ -79,6 +79,26 @@
   transform: translateY(-2px);
 }
 
+.create-account-button {
+  background-color: #2ecc71;  /* Bright green */
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.create-account-button:hover {
+  background-color: #27ae60;  /* Darker green on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 480px) {
   .home-content {
     padding: 20px;
