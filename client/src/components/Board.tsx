@@ -72,7 +72,7 @@ const Board: React.FC = () => {
     const sendFeedbackForInvalidMove = async (board: PieceType[][]) => {
         try {
             console.log("Sending feedback for invalid AI move...");
-            const response = await fetch('http://localhost:3002/api/ai/feedback', {
+            const response = await fetch('http://localhost:3001/api/ai/feedback', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ board })

@@ -186,7 +186,8 @@ export function promoteToKing(
 export async function fetchAIMove(board: PieceType[][]): Promise<{ start: Coordinates; end: Coordinates } | null> {
     try {
         //trying to get the AI move from the server
-        const response = await axios.post('http://localhost:3002/api/ai/move', { board });
+        const response = await axios.post('http://localhost:3001/api/ai/move', { board });
+
 
         return response.data;
     } catch (error) {
